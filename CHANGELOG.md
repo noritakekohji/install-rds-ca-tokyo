@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.1] - 2026-11-12
+
+### Fixed
+- Define Windows PowerShell 5.1 and PowerShell 7 CI jobs explicitly so GitHub Actions can schedule both shells.
+
 ## [0.3.0] - 2026-11-12
 
 ### Changed

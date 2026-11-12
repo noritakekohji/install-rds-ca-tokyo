@@ -9,7 +9,7 @@ only the pinned, self-issued root CA is added to CurrentUser\Root.
 .PARAMETER BundlePath
 Optional path to a .p7b or .pem file. If omitted, the script folder is searched first.
 .NOTES
-Version: 0.3.0. Change the configuration block below when the target RDS CA changes.
+Version: 0.3.1. Change the configuration block below when the target RDS CA changes.
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'This is an interactive installer and the verification details must remain visible to the user.')]
 [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
@@ -168,7 +168,7 @@ function Get-RdsRootCertificate {
 # Dot-sourcing exposes helper functions to tests without running the installer.
 if ($MyInvocation.InvocationName -ne '.') {
     try {
-        Write-Host '=== Amazon RDS SQL Server root CA installer v0.3.0 ==='
+        Write-Host '=== Amazon RDS SQL Server root CA installer v0.3.1 ==='
         Write-Host "Target: $RdsRegion / $RdsCaIdentifier"
 
         $resolvedBundlePath = Resolve-RdsBundlePath -RequestedPath $BundlePath -ScriptDirectory $PSScriptRoot

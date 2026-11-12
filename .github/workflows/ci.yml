@@ -7,21 +7,36 @@ on:
     branches: [main]
 
 jobs:
-  powershell:
+  windows-powershell-51:
+    name: Windows PowerShell 5.1
     runs-on: windows-latest
-    strategy:
-      matrix:
-        shell: [powershell, pwsh]
     steps:
       - uses: actions/checkout@v4
       - name: Install verification modules
-        shell: ${{ matrix.shell }}
+        shell: powershell
         run: |
           Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force
           Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
       - name: Run tests
-        shell: ${{ matrix.shell }}
+        shell: powershell
         run: Invoke-Pester ./tests -CI
       - name: Run analyzer
-        shell: ${{ matrix.shell }}
+        shell: powershell
+        run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
+
+  powershell-7:
+    name: PowerShell 7
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install verification modules
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+      - name: Run tests
+        shell: pwsh
+        run: Invoke-Pester ./tests -CI
+      - name: Run analyzer
+        shell: pwsh
         run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit

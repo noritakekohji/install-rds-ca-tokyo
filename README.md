@@ -45,4 +45,4 @@ The automated tests use generated certificates and temporary bundles. They do no
 
 ## Version and license
 
-Current version: 0.3.0. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.
+Current version: 0.3.1. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.
