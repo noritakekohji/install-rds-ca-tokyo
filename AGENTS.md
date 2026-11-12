@@ -5,7 +5,8 @@
 - Keep the target region, CA identifier, and expected root thumbprint in the script's configuration block so customer users normally need no arguments.
 - Accept an optional bundle path as the only normal-use argument; explicit paths win, otherwise search beside the script, then prompt if missing.
 - Support the AWS `.p7b` and `.pem` formats, but install only the configured, verified self-issued root.
-- Keep the prerequisite checker separate from the installer; it must not change settings or request SQL credentials.
+- Keep the prerequisite checker separate from the installer. It may request SQL credentials for a live test but must not change RDS settings or certificate stores.
+- Read customer connection details from a temporary same-folder .env file. Never create persistent copies, log values, or commit a real .env.
 - Keep AWS and Microsoft guidance distinct from observed facts and assumptions. Cite official sources and record access dates.
 - Never include customer hostnames, credentials, AWS account identifiers, downloaded certificate bundles, or private infrastructure data.
 - Run Pester and PSScriptAnalyzer before release. Tests must not install certificates into the trust store.

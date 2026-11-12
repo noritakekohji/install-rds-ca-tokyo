@@ -1,9 +1,10 @@
 # Changelog
 
-## [0.4.0] - 2026-11-12
+## [0.5.0] - 2026-11-12
 
 ### Added
-- Separate read-only prerequisite checker for RDS root CA presence, DNS resolution, and TCP reachability without SQL credentials
+- Separate connection diagnostic for root CA presence, DNS/TCP reachability, TLS certificate validation, SQL login, database access, and encrypted connection status
+- Same-folder .env input for endpoint and SQL credentials without command-line arguments or persistent configuration copies
 
 ## [0.3.1] - 2026-11-12
 

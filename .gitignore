@@ -10,3 +10,8 @@ TestResults.xml
 *.p7b
 *.pfx
 *.p12
+
+# Temporary customer SQL credentials
+.env
+.env.*
+!.env.example

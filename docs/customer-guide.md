@@ -1,6 +1,6 @@
 # Amazon RDS for SQL Server に Power BI Desktop から接続するときの証明書エラー
 
-**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.3.0**
+**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.5.0**
 
 ## まず結論
 
@@ -37,9 +37,11 @@ aws rds describe-db-instances `
 
 ### SQL接続前の端末準備チェック
 
-プロジェクトにはインストーラーとは別に、Test-RdsSqlServerPrerequisites.ps1 があります。引数なしで起動するとRDSエンドポイントを尋ねます。通常のポートは1433です。必要な場合だけ -Port でポートを指定できます。証明書ストアの想定root thumbprint、DNS名前解決、TCP疎通を個別に表示し、設定変更やSQLログインは行いません。
+プロジェクトにはインストーラーとは別に、Test-RdsSqlServerPrerequisites.ps1 があります。スクリプトと同じフォルダーに一時的な .env を置いて、引数なしで実行します。必要な値はRDSエンドポイント名、ポート（省略時1433）、DB名、SQLログイン、パスワードです。.env.example を書式見本として使えます。TLSのホスト名検証のため、数値IPではなくAWSコンソールに表示されるRDSエンドポイントDNS名を設定してください。
 
-このチェックが通っても、SQL Serverのログインや、SQL ServerのTLS pre-loginで提示されるサーバー証明書の検証まで成功したことにはなりません。Power BI DesktopやSQL接続ドライバーを使った接続確認は別途必要です。失敗した場合は、表示された項目に応じて証明書ストア、DNS、VPN/VPC経路、Security Group/NACL、RDSのポートを確認してください。
+SQL_PASSWORD は依頼に合わせて .env に平文で記載します。スクリプトは .env を読み取るだけで、新規作成、書換え、LocalAppDataへのコピーや保存はしません。パスワードを画面や診断結果に表示することもありません。実行時だけクライアントに配置し、診断後に .env を削除してください。Gitへ登録したり、メールやチケットに添付したりしないでください。
+
+診断は証明書ストア、DNS、TCPに加えて、指定したDBへの実際のSQL接続を試します。接続では Encrypt=True と TrustServerCertificate=False を指定するため、接続成功時はSQLクライアントがTLS証明書チェーンとエンドポイント名を検証しています。SQLログインとDBアクセスの成否を分けて表示し、権限が許せば encrypt_option も照会します。設定ファイルの資格情報を使った実接続なので、顧客RDSへの実行前に接続先とアカウントを確認してください。
 
 <PAGEBREAK>
 | 状況 | 確認・対処 |
@@ -84,7 +86,8 @@ aws rds describe-db-instances `
 5. 通常は引数なしで実行します。スクリプトは設定済みの東京 RSA2048 G1 rootだけを選び、名前・CA属性・自己発行・Thumbprint・有効期間を確認します。単独ファイルを指定しても、対象rootと一致しなければ何も登録せず終了します。
 6. 表示された証明書情報を確認し、PowerShellの確認プロンプトに承認した場合に限り、CurrentUserのRootへ登録します。LocalMachineへの登録はこのスクリプトの対象外です。
 7. Power BI Desktopを完全に終了して起動し直し、同じRDSエンドポイント名で再接続します。
-8. まだ接続できない場合は、エラー全文、Power BI Desktopのバージョン、RDSのCA識別子、ゲートウェイ利用有無を添えて管理者へ連絡します。認証情報は共有しないでください。
+8. Test-RdsSqlServerPrerequisites.ps1 と同じフォルダーに一時 `.env` を配置し、`.env.example` を参考に接続先DNS名、ポート、DB名、SQLログイン、パスワードを記載します。スクリプトを引数なしで実行し、証明書ストア、DNS、TCP、TLS、SQLログイン、DB接続の結果を確認します。診断後は `.env` を削除し、共有しないでください。
+9. まだ接続できない場合は、エラー全文、Power BI Desktopのバージョン、RDSのCA識別子、ゲートウェイ利用有無を添えて管理者へ連絡します。.envや認証情報は共有しないでください。
 
 ## 参照資料
 
