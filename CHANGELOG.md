@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - 2026-11-12
+
+### Changed
+- Normal use requires no arguments; the script searches beside itself for the default AWS bundle
+- An explicit bundle path takes precedence; if defaults are absent, the script prompts for a path
+- Region, CA identifier, and expected root thumbprint moved into a configuration block in the script
+- Accept both `.p7b` and `.pem`, while rejecting unrelated single certificates
+- Tests cover path priority, both bundle formats, and safe rejection of unrelated certificates
+- GitHub Actions checks Windows PowerShell 5.1 and PowerShell 7
+
 ## [0.2.0] - 2026-11-12
 
 ### Added

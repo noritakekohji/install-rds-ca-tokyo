@@ -9,16 +9,19 @@ on:
 jobs:
   powershell:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        shell: [powershell, pwsh]
     steps:
       - uses: actions/checkout@v4
       - name: Install verification modules
-        shell: pwsh
+        shell: ${{ matrix.shell }}
         run: |
           Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force
           Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
       - name: Run tests
-        shell: pwsh
+        shell: ${{ matrix.shell }}
         run: Invoke-Pester ./tests -CI
       - name: Run analyzer
-        shell: pwsh
+        shell: ${{ matrix.shell }}
         run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit

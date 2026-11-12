@@ -1,12 +1,12 @@
 # Amazon RDS for SQL Server に Power BI Desktop から接続するときの証明書エラー
 
-**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.1.0**
+**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.2.0**
 
 ## まず結論
 
 証明書エラーが「証明書チェーンが信頼されていない」場合、クライアント側の信頼設定が原因である可能性はあります。ただし、エラーの詳細を見ずに「RDSの証明書がPCにない」と断定はできません。ネットワーク、接続先名、認証、暗号化設定など別の原因もあります。
 
-プロジェクト内の改修版PowerShellスクリプトは、AWSのPKCS#7バンドルから指定リージョン・CA identifierのroot CAを1件だけ選び、別途AWSで確認したThumbprintと一致する場合に限ってCurrentUserの信頼されたルートへ登録します。LocalMachineや中間CAは変更しません。対象RDSが指定CAを使い、Power BIが実行ユーザーのWindows証明書ストアを参照する場合に、CAチェーンの信頼エラーを解消できる可能性があります。
+プロジェクト内の改修版PowerShellスクリプトは、AWSの`.p7b`または`.pem`から、設定されたリージョン・CA identifier・Thumbprintに一致するroot CAを1件だけ選び、CurrentUserの信頼されたルートへ登録します。通常は引数なしで実行でき、同じフォルダにバンドルがなければパス入力を求めます。LocalMachineや中間CAは変更しません。
 
 ただし、スクリプトを実行する前にRDSの実際のCA識別子を確認してください。AWSのSQL Server向けWindows接続説明は、Global Bundle PEMよりPKCS#7（`.p7b`）を推奨しています。加えて、Power BI Desktopの2025年2月以降の版では、自己署名証明書のケースに `PBI_SQL_TRUSTED_SERVERS` を使う方法もMicrosoftが案内しています。
 
@@ -31,7 +31,7 @@ aws rds describe-db-instances `
   --output table
 ```
 
-改修版では実際のCA identifierとリージョンを指定し、別途取得したThumbprintが一致しなければ中断します。
+改修版は東京のRSA2048 G1をスクリプト内で設定しています。対象RDSが別CAなら管理者が設定値を更新するまで実行しないでください。設定対象と異なる単独PEM（サーバー証明書、中間CA、別CAのrootなど）を指定した場合は条件に合わず登録を中断します。単独PEMでも、設定対象の正しいroot CAそのものであれば利用できます。
 
 ## 接続経路に応じた対処
 
@@ -59,24 +59,24 @@ aws rds describe-db-instances `
 
 ### 元Gist v3で見つかった改善点
 
-1. **実際のRDS CAとの一致を確認する** — 元版は東京 RSA2048 G1を固定していました。改修版ではリージョンと対応するCA identifierを引数にし、対象CA以外は選択しません。
-2. **Windows向け形式をAWS推奨に合わせる** — 元版はPEMを解析していました。改修版はWindows向けに `.p7b` を入力とします。bundleに含まれる証明書全ては登録せず、root CAだけを追加します。
-3. **配布物の真正性を別途検証する** — 改修版ではAWSの `describe-certificates` 等から独立に取得したThumbprintを必須入力にして、bundle内のrootと照合します。ダウンロード元のTLS確認と顧客向け配布版のハッシュ公開も必要です。
+1. **実際のRDS CAとの一致を確認する** — 元版は東京 RSA2048 G1を固定していました。改修版も標準設定は同じです。異なるCAを使う場合は配布担当者がスクリプト内の設定値を変更します。顧客がCA情報を引数に渡す必要はありません。
+2. **Windows向け形式をAWS推奨に合わせる** — 元版はPEMを解析していました。改修版はWindows向け推奨の `.p7b` と元版の `.pem` の両方を読み取ります。bundleに含まれる証明書全ては登録せず、root CAだけを追加します。
+3. **配布物の真正性を別途検証する** — 改修版はThumbprintをスクリプト内に設定し、bundle内のrootと照合します。ダウンロード元のTLS確認と顧客向け配布版のハッシュ公開も必要です。
 4. **実行を安全にする** — `-WhatIf` とShouldProcess確認をサポートし、CurrentUserストアのみを変更します。エラーは非ゼロ終了コードで返し、重複時は変更せず成功終了します。
 5. **サポート対象を明示する** — 現行のRSA2048/RSA4096/ECC384 G1とリージョン名の組み合わせを対象にします。旧CAは対象外とし、AWS側のCA rotationを別途計画してください。
 6. **配布版をGitで管理する** — このプロジェクトのGitHubリポジトリはprivateで管理し、お客様へ渡す際は管理された配布先と版・SHA-256を使います。private repoでも顧客がアクセスできるわけではない点に注意してください。
 ### 評価
 
-元Gist v3は、単一root CA選択とCurrentUser限定ができていました。改修版は `.p7b` 対応、対象RDS CA identifier・リージョン・Thumbprintの照合、WhatIf、エラー終了コードを加えています。スクリプトのテストは顧客PC/RDSへの接続実証ではありません。
+元Gist v3は、単一root CA選択とCurrentUser限定ができていました。改修版は `.p7b` / `.pem` 対応、スクリプト内設定との照合、バンドルの自動検索、パス入力、WhatIf、エラー終了コードを加えています。スクリプトのテストは顧客PC/RDSへの接続実証ではありません。
 
 ## お客様向け実施手順
 
 1. 接続先がAmazon RDS for SQL Serverであること、RDSエンドポイントとポート（通常1433）、DB識別子、リージョンを確認します。
 2. エラー全文を保存し、証明書チェーンの信頼エラーか、ネットワーク/認証エラーかを区別します。
 3. AWSコンソールでRDSインスタンスのCA識別子を確認します。
-4. AWS公式のRDS証明書ページから、リージョンに適合する `.p7b` を取得します。AWS CLIの `aws rds describe-certificates` など、認証済みAWS情報からCA certificate identifierに対応するThumbprintを別途取得します。
-5. READMEの例に従い、まず `-WhatIf` を付けて実行します。Subject、Thumbprint、有効期限と、AWSから独立取得したThumbprintが一致することを確認します。
-6. 同じコマンドを `-WhatIf` なしで実行し、PowerShellの確認プロンプトに承認した場合に限り、CurrentUserのRootへ登録します。LocalMachineへの登録はこのスクリプトの対象外です。
+4. AWS公式のRDS証明書ページから `.p7b`（Windows推奨）または `.pem` を取得します。通常はバンドルをスクリプトと同じフォルダに置きます。別フォルダに置いた場合は、引数でパスを指定するか、起動後の入力欄で指定します。
+5. 通常は引数なしで実行します。スクリプトは設定済みの東京 RSA2048 G1 rootだけを選び、名前・CA属性・自己発行・Thumbprint・有効期間を確認します。単独ファイルを指定しても、対象rootと一致しなければ何も登録せず終了します。
+6. 表示された証明書情報を確認し、PowerShellの確認プロンプトに承認した場合に限り、CurrentUserのRootへ登録します。LocalMachineへの登録はこのスクリプトの対象外です。
 7. Power BI Desktopを完全に終了して起動し直し、同じRDSエンドポイント名で再接続します。
 8. まだ接続できない場合は、エラー全文、Power BI Desktopのバージョン、RDSのCA識別子、ゲートウェイ利用有無を添えて管理者へ連絡します。認証情報は共有しないでください。
 
