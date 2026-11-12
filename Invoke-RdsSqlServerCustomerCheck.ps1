@@ -4,8 +4,8 @@
 Runs the customer RDS readiness check, installs the configured root CA only when missing, and checks again.
 .DESCRIPTION
 Writes detailed child-script output to a unique text log beside this script. Console output contains only concise
-status messages and the log path. The temporary same-folder .env is deleted after a run because it contains a
-plaintext SQL password. The log never includes values read from .env, but may contain endpoint and IP information.
+status messages and the log path. The same-folder .env is retained after a run for the user to manage. The log
+never includes values read from .env, but may contain endpoint and IP information.
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Customer-facing console status messages are intentionally concise.')]
 [CmdletBinding()]
@@ -284,47 +284,8 @@ function Write-RdsCustomerError {
 function Complete-RdsSqlServerCustomerFlow {
     param(
         [AllowNull()][string]$LogPath,
-        [Parameter(Mandatory)][string]$EnvironmentPath,
-        [Parameter(Mandatory)][bool]$EnvironmentExisted,
-        [Parameter(Mandatory)][bool]$FlowStarted,
         [Parameter(Mandatory)][psobject]$Result
     )
-
-    if ($FlowStarted -and $EnvironmentExisted -and (Test-Path -LiteralPath $EnvironmentPath -PathType Leaf)) {
-        try {
-            Remove-Item -LiteralPath $EnvironmentPath -Force -ErrorAction Stop
-        }
-        catch {
-            if ($LogPath) {
-                try {
-                    Add-RdsCustomerLog -Path $LogPath -Message 'ERROR: Temporary .env cleanup failed.'
-                }
-                catch {
-                    Write-Host '[NG] .env削除エラーを詳細ログへ記録できませんでした。'
-                }
-            }
-            Write-Host '[NG] 一時設定(.env)を削除できませんでした。手動で削除してください。'
-            $Result.ExitCode = 1
-            $Result.SuccessMessage = $null
-        }
-
-        if (-not (Test-Path -LiteralPath $EnvironmentPath -PathType Leaf)) {
-            if ($LogPath) {
-                try {
-                    Add-RdsCustomerLog -Path $LogPath -Message 'Temporary .env removed after the run.'
-                }
-                catch {
-                    Write-Host '[NG] .env削除結果を詳細ログへ記録できませんでした。'
-                    $Result.ExitCode = 1
-                    $Result.SuccessMessage = $null
-                }
-            }
-            Write-Host '[INFO] パスワードを含む一時設定(.env)を削除しました。'
-        }
-    }
-    elseif (-not $FlowStarted -and $EnvironmentExisted) {
-        Write-Host '[INFO] 診断を開始できなかったため、.envは削除していません。手動で削除してください。'
-    }
 
     if ($LogPath) {
         try {
@@ -347,17 +308,14 @@ function Invoke-RdsSqlServerCustomerFlow {
 
     $logPath = $null
     $envPath = Join-Path $Directory '.env'
-    $envExisted = Test-Path -LiteralPath $envPath -PathType Leaf
     $sensitiveValues = @()
     $result = [pscustomobject]@{ ExitCode = 1; SuccessMessage = $null }
-    $flowStarted = $false
 
     try {
         $logPath = Initialize-RdsCustomerLogFile -Directory $Directory
-        $flowStarted = $true
         Add-RdsCustomerLog -Path $logPath -Message ('Started: ' + (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz'))
         Add-RdsCustomerLog -Path $logPath -Message 'Detailed diagnostic output follows. Password values from .env are redacted.'
-        if (-not $envExisted) {
+        if (-not (Test-Path -LiteralPath $envPath -PathType Leaf)) {
             Add-RdsCustomerLog -Path $logPath -Message 'ERROR: Same-folder .env file is missing.'
             Write-Host '[NG] 接続設定(.env)が見つかりません。配布担当者にご確認ください。'
         }
@@ -377,9 +335,6 @@ function Invoke-RdsSqlServerCustomerFlow {
 
     $result = Complete-RdsSqlServerCustomerFlow `
         -LogPath $logPath `
-        -EnvironmentPath $envPath `
-        -EnvironmentExisted $envExisted `
-        -FlowStarted $flowStarted `
         -Result $result
     if ($result.ExitCode -eq 0 -and $result.SuccessMessage) { Write-Host $result.SuccessMessage }
     return [pscustomobject]@{ ExitCode = $result.ExitCode; LogPath = $logPath }

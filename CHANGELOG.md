@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.1] - 2026-11-12
+
+### Fixed
+- Keep the customer-provided `.env` file after the readiness flow; the launcher no longer deletes it
+- Use Windows batch-compatible line endings and ASCII-only launcher messages to prevent command parsing errors and mojibake
+
 ## [0.6.0] - 2026-11-12
 
 ### Added

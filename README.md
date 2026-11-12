@@ -16,7 +16,7 @@ Prepare the temporary `.env` connection file and place `global-bundle.p7b` or `g
 
 The launcher first runs the connection readiness check. It runs the certificate installer only when the expected root CA is missing, asks the user before adding that CA to `CurrentUser\Root`, and reruns the connection check after installation. It does not install a certificate for DNS, TCP, TLS, SQL login, or database errors unrelated to a missing expected root CA. No administrator elevation is required.
 
-Detailed output is written to a uniquely named `RdsSqlServerCheck-*.log` text file beside the launcher. The console shows only short progress and OK/NG messages. Password values are redacted from captured output, and the temporary `.env` is deleted after a run. The log can contain the endpoint, database name, resolved IP addresses, and error details; review it before sharing it outside the customer environment. If `.env` is missing or the launcher cannot create a log, the tool stops without installing a certificate. If log creation fails, `.env` is left in place and must be removed manually.
+Detailed output is written to a uniquely named `RdsSqlServerCheck-*.log` text file beside the launcher. The console shows only short progress and OK/NG messages. Password values are redacted from captured output. The `.env` file is retained after a run and is never deleted or modified by the launcher. Remove it manually when you no longer need it, and do not share it. The log can contain the endpoint, database name, resolved IP addresses, and error details; review it before sharing it outside the customer environment. If `.env` is missing or the launcher cannot create a log, the tool stops without installing a certificate.
 
 ### Usual use
 
@@ -64,4 +64,4 @@ The checker reports the configured RDS root CA presence/validity, DNS, and TCP c
 
 ## Version and license
 
-Current version: 0.6.0. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.
+Current version: 0.6.1. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.

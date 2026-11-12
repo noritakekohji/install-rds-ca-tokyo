@@ -1,15 +1,15 @@
 @echo off
 setlocal
-chcp 65001 >nul
 set "SCRIPT_DIR=%~dp0"
+set "SCRIPT_PATH=%SCRIPT_DIR%Invoke-RdsSqlServerCustomerCheck.ps1"
 
-if not exist "%SCRIPT_DIR%Invoke-RdsSqlServerCustomerCheck.ps1" (
-    echo [NG] 実行スクリプトが見つかりません。
-    echo 配布フォルダー一式を確認してください。
+if not exist "%SCRIPT_PATH%" (
+    echo [NG] Customer diagnostic script was not found.
+    echo Check that the complete distribution folder is present.
     goto :finish_error
 )
 
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%Invoke-RdsSqlServerCustomerCheck.ps1"
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_PATH%"
 set "RESULT=%ERRORLEVEL%"
 goto :finish
 

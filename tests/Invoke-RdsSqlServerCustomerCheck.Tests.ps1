@@ -30,6 +30,18 @@ Describe 'Protect-RdsCustomerOutput' {
     }
 }
 
+Describe 'Run-RdsSqlServerCheck.bat encoding' {
+    It 'uses ASCII and Windows CRLF line endings for cmd.exe compatibility' {
+        $batchPath = Join-Path (Split-Path $PSScriptRoot -Parent) 'Run-RdsSqlServerCheck.bat'
+        $bytes = [System.IO.File]::ReadAllBytes($batchPath)
+        $text = [System.Text.Encoding]::ASCII.GetString($bytes)
+
+        @($bytes | Where-Object { $_ -gt 127 }).Count | Should -Be 0
+        $text -match '(?<!\r)\n' | Should -BeFalse
+        $text -match '\r\n' | Should -BeTrue
+    }
+}
+
 Describe 'Invoke-RdsCustomerPowerShellFile' {
     It 'captures child PowerShell host output and preserves its exit code' {
         $childPath = Join-Path $script:testDirectory 'child-output.ps1'
@@ -60,7 +72,7 @@ Describe 'Invoke-RdsSqlServerCustomerFlow' {
         $result.ExitCode | Should -Be 0
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 1 -Exactly -ParameterFilter { -not $AutoConfirm }
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 0 -ParameterFilter { $AutoConfirm }
-        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeTrue
         Test-Path -LiteralPath $result.LogPath | Should -BeTrue
     }
 
@@ -85,7 +97,7 @@ Describe 'Invoke-RdsSqlServerCustomerFlow' {
         $result.ExitCode | Should -Be 0
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 2 -Exactly -ParameterFilter { -not $AutoConfirm }
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 1 -Exactly -ParameterFilter { $AutoConfirm }
-        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeTrue
     }
 
     It 'does not install a certificate for a non-certificate diagnostic failure' {
@@ -98,7 +110,7 @@ Describe 'Invoke-RdsSqlServerCustomerFlow' {
         $result.ExitCode | Should -Be 1
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 1 -Exactly -ParameterFilter { -not $AutoConfirm }
         Should -Invoke Invoke-RdsCustomerPowerShellFile -Times 0 -ParameterFilter { $AutoConfirm }
-        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $script:testDirectory '.env') | Should -BeTrue
         $logText = [System.IO.File]::ReadAllText($result.LogPath)
         $logText | Should -Not -Match 'test-password'
         $logText | Should -Match '\[REDACTED\]'
