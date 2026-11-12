@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.0] - 2026-11-12
+
+### Added
+- Double-click customer launcher that runs the connection check, asks before installing a missing configured root CA, then reruns the check
+- Per-run text logs with concise console status, password redaction, and automatic cleanup of the temporary `.env`
+
 ## [0.5.0] - 2026-11-12
 
 ### Added

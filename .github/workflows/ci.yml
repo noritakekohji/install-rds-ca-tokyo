@@ -25,6 +25,7 @@ jobs:
         run: |
           Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
           Invoke-ScriptAnalyzer ./Test-RdsSqlServerPrerequisites.ps1 -EnableExit
+          Invoke-ScriptAnalyzer ./Invoke-RdsSqlServerCustomerCheck.ps1 -EnableExit
 
   powershell-7:
     name: PowerShell 7
@@ -44,3 +45,4 @@ jobs:
         run: |
           Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
           Invoke-ScriptAnalyzer ./Test-RdsSqlServerPrerequisites.ps1 -EnableExit
+          Invoke-ScriptAnalyzer ./Invoke-RdsSqlServerCustomerCheck.ps1 -EnableExit
