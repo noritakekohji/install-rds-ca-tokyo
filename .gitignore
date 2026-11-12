@@ -1,0 +1,12 @@
+# Local review and test artifacts
+tmp/
+*.log
+TestResults.xml
+/review-report.html
+/output/customer-guide.pdf
+
+# Personal certificate bundles must never be committed
+*.pem
+*.p7b
+*.pfx
+*.p12

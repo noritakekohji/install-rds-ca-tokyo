@@ -1,0 +1,24 @@
+name: PowerShell CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install verification modules
+        shell: pwsh
+        run: |
+          Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+      - name: Run tests
+        shell: pwsh
+        run: Invoke-Pester ./tests -CI
+      - name: Run analyzer
+        shell: pwsh
+        run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
