@@ -33,16 +33,24 @@ Only the current user's trust store is modified. The script does not change `Loc
 ```powershell
 Invoke-Pester .\tests
 Invoke-ScriptAnalyzer .\Install-RdsSqlServerCa.ps1
+Invoke-ScriptAnalyzer .\Test-RdsSqlServerPrerequisites.ps1
 ```
 
-The automated tests use generated certificates and temporary bundles. They do not modify a Windows trust store or prove connectivity to a customer's RDS instance.
+The automated tests use generated certificates, temporary bundles, and mocked network calls. They do not modify a Windows trust store or prove connectivity to a customer's RDS instance.
+
+## Read-only connection prerequisite check
+
+Run Test-RdsSqlServerPrerequisites.ps1 separately from the installer. It prompts for the RDS endpoint if omitted and defaults to TCP port 1433. It checks whether the configured root CA thumbprint is present and currently valid in either CurrentUser or LocalMachine trusted roots, resolves the endpoint, and tests TCP reachability with a five-second timeout. A non-default port can be supplied with -Port. Keep the thumbprint near the top of the checker aligned with the installer configuration.
+
+The checker does not install certificates, change network settings, ask for credentials, log in to SQL Server, or validate the SQL Server TLS certificate during the SQL Server pre-login handshake. A passing result confirms only these local trust-store, DNS, and TCP checks.
 
 ## Documentation
 
 - [Customer troubleshooting guide](docs/customer-guide.md)
+- [Prerequisite checker](Test-RdsSqlServerPrerequisites.ps1)
 - [Installer review PDF](output/pdf/rds-sqlserver-ca-installer-review-ja.pdf)
 - [Changelog](CHANGELOG.md)
 
 ## Version and license
 
-Current version: 0.3.1. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.
+Current version: 0.4.0. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.

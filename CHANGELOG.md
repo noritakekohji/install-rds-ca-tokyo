@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0] - 2026-11-12
+
+### Added
+- Separate read-only prerequisite checker for RDS root CA presence, DNS resolution, and TCP reachability without SQL credentials
+
 ## [0.3.1] - 2026-11-12
 
 ### Fixed

@@ -22,7 +22,9 @@ jobs:
         run: Invoke-Pester ./tests -CI
       - name: Run analyzer
         shell: powershell
-        run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
+        run: |
+          Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
+          Invoke-ScriptAnalyzer ./Test-RdsSqlServerPrerequisites.ps1 -EnableExit
 
   powershell-7:
     name: PowerShell 7
@@ -39,4 +41,6 @@ jobs:
         run: Invoke-Pester ./tests -CI
       - name: Run analyzer
         shell: pwsh
-        run: Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
+        run: |
+          Invoke-ScriptAnalyzer ./Install-RdsSqlServerCa.ps1 -EnableExit
+          Invoke-ScriptAnalyzer ./Test-RdsSqlServerPrerequisites.ps1 -EnableExit

@@ -1,6 +1,6 @@
 # Amazon RDS for SQL Server に Power BI Desktop から接続するときの証明書エラー
 
-**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.2.0**
+**お客様向け確認ガイド | 2026年11月12日 | 資料 v0.3.0**
 
 ## まず結論
 
@@ -34,6 +34,12 @@ aws rds describe-db-instances `
 改修版は東京のRSA2048 G1をスクリプト内で設定しています。対象RDSが別CAなら管理者が設定値を更新するまで実行しないでください。設定対象と異なる単独PEM（サーバー証明書、中間CA、別CAのrootなど）を指定した場合は条件に合わず登録を中断します。単独PEMでも、設定対象の正しいroot CAそのものであれば利用できます。
 
 ## 接続経路に応じた対処
+
+### SQL接続前の端末準備チェック
+
+プロジェクトにはインストーラーとは別に、Test-RdsSqlServerPrerequisites.ps1 があります。引数なしで起動するとRDSエンドポイントを尋ねます。通常のポートは1433です。必要な場合だけ -Port でポートを指定できます。証明書ストアの想定root thumbprint、DNS名前解決、TCP疎通を個別に表示し、設定変更やSQLログインは行いません。
+
+このチェックが通っても、SQL Serverのログインや、SQL ServerのTLS pre-loginで提示されるサーバー証明書の検証まで成功したことにはなりません。Power BI DesktopやSQL接続ドライバーを使った接続確認は別途必要です。失敗した場合は、表示された項目に応じて証明書ストア、DNS、VPN/VPC経路、Security Group/NACL、RDSのポートを確認してください。
 
 <PAGEBREAK>
 | 状況 | 確認・対処 |
