@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.0] - 2026-11-19
+
+### Added
+- Customer-facing Windows GUI certificate installation guide with an AWS documentation screenshot and a standalone, thumbprint-verified Tokyo RSA2048 G1 root certificate
+- Two-slide PowerPoint summarizing GUI installation steps 2–6, excluding CA identifier confirmation
+
 ## [0.6.1] - 2026-11-12
 
 ### Fixed
