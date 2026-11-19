@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1] - 2026-11-19
+
+### Changed
+- Use the Windows certificate viewer to select and install only the matching root directly from `global-bundle.p7b`
+- Update the two-slide PowerPoint to match the bundle selection and import procedure
+- Remove the separately supplied `.cer` file; no `.cer` is required by the customer procedure
+
 ## [0.7.0] - 2026-11-19
 
 ### Added

@@ -57,9 +57,8 @@ The checker reports the configured RDS root CA presence/validity, DNS, and TCP c
 ## Documentation
 
 - [Customer troubleshooting guide](docs/customer-guide.md)
-- [Windows GUI certificate installation guide](docs/windows-gui-certificate-install.html)
-- [Windows GUI certificate installation steps (PowerPoint)](output/pptx/windows-gui-rds-ca-install-steps.pptx)
-- [Single verified Tokyo RSA2048 G1 root certificate](docs/assets/rds-ca-rsa2048-g1-root.cer)
+- [Windows GUI certificate installation guide (select one root from global-bundle.p7b)](docs/windows-gui-certificate-install.html)
+- [Windows GUI certificate installation steps (PowerPoint)](output/pptx/windows-gui-rds-ca-install-steps-v0.7.1.pptx)
 - [Prerequisite checker](Test-RdsSqlServerPrerequisites.ps1)
 - [.env format example](.env.example)
 - [Installer review PDF](output/pdf/rds-sqlserver-ca-installer-review-ja.pdf)
@@ -67,4 +66,4 @@ The checker reports the configured RDS root CA presence/validity, DNS, and TCP c
 
 ## Version and license
 
-Current version: 0.7.0. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.
+Current version: 0.7.1. This customer-oriented utility is distributed in a private repository. Review the AWS and Microsoft links in the customer guide before each customer deployment because CA bundles and product behavior can change.

@@ -3,56 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Amazon RDS for SQL Server ルート証明書の手動登録手順</title>
+<title>Amazon RDS SQL Server ルート証明書のGUI登録手順</title>
 <style>
 :root{--navy:#16324f;--blue:#2563a6;--pale:#eef5fc;--ink:#203040;--muted:#526579;--green:#176b48;--amber:#8b5200;--red:#a12d2d;--line:#d8e1ea}
 *{box-sizing:border-box}body{margin:0;background:#f3f6f9;color:var(--ink);font-family:"Yu Gothic UI","Meiryo UI",sans-serif;line-height:1.75}
 main{max-width:980px;margin:28px auto;padding:0 22px 48px}.hero{background:linear-gradient(125deg,#16324f,#2563a6);color:#fff;border-radius:18px;padding:34px 40px;box-shadow:0 8px 24px #16324f22}.eyebrow{letter-spacing:.08em;font-size:.84rem;opacity:.86}.hero h1{font-size:1.8rem;line-height:1.45;margin:.55em 0}.hero p{margin:.4em 0;color:#e7f0fa}.meta{font-size:.88rem;opacity:.85}
 .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin:18px 0;box-shadow:0 2px 8px #23384d0a}.card h2{font-size:1.25rem;color:var(--navy);margin:0 0 12px}.lead{font-size:1.04rem}.callout{border-left:5px solid var(--blue);background:var(--pale);padding:13px 16px;border-radius:7px;margin:14px 0}.warn{border-left-color:#d08a16;background:#fff7e8}.danger{border-left-color:#bf4c4c;background:#fff1f1}.ok{border-left-color:#24835b;background:#effaf4}
-.step{display:grid;grid-template-columns:54px 1fr;gap:14px;margin:18px 0 25px;align-items:start}.num{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.15rem}.step h3{margin:2px 0 7px;font-size:1.08rem;color:var(--navy)}
-.real-shot{display:block;width:100%;height:auto;border:1px solid #aab8c6;border-radius:8px;margin:14px 0 5px}.caption{font-size:.82rem;color:var(--muted);margin:5px 2px 14px}.checklist li,.steps li{margin:.4em 0}code{font-family:Consolas,monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}.footer{font-size:.82rem;color:var(--muted)}a{color:#155b9a;overflow-wrap:anywhere}.footline{border-top:1px solid var(--line);margin-top:22px;padding-top:15px}
+.step{display:grid;grid-template-columns:54px 1fr;gap:14px;margin:18px 0 25px;align-items:start}.num{width:42px;height:42px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.15rem}.step h3{margin:2px 0 7px;font-size:1.08rem;color:var(--navy)}.real-shot{display:block;width:100%;height:auto;border:1px solid #aab8c6;border-radius:8px;margin:14px 0 5px}.caption{font-size:.82rem;color:var(--muted);margin:5px 2px 14px}code{font-family:Consolas,monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}.footer{font-size:.82rem;color:var(--muted)}a{color:#155b9a;overflow-wrap:anywhere}.footline{border-top:1px solid var(--line);margin-top:22px;padding-top:15px}
 @media(max-width:650px){main{padding:0 12px 28px;margin:12px auto}.hero{padding:24px}.hero h1{font-size:1.4rem}.card{padding:19px}.step{grid-template-columns:42px 1fr;gap:9px}.num{width:36px;height:36px}}
 @media print{body{background:#fff;font-size:10pt}main{max-width:none;margin:0;padding:0}.hero,.card{box-shadow:none;break-inside:avoid}.hero{border-radius:0}.card{margin:10px 0;padding:16px}.real-shot{break-inside:avoid}a{color:inherit;text-decoration:none}}
 </style>
 </head>
-<body>
-<main>
-<header class="hero">
-<div class="eyebrow">お客様向け作業手順書</div>
-<h1>Amazon RDS for SQL Server<br>ルート証明書をWindowsの画面から登録する</h1>
-<p>PowerShellスクリプトを実行できない場合に、Windowsの証明書ウィザードで作業する手順です。</p>
-<div class="meta">対象例：東京リージョン / rds-ca-rsa2048-g1　｜　更新日：2026年11月19日</div>
-</header>
+<body><main>
+<header class="hero"><div class="eyebrow">お客様向け作業手順書</div><h1>global-bundle.p7bから<br>対象ルート証明書だけを登録する</h1><p>Windowsの画面を使い、バンドルを開いて対象証明書を選び、現在のユーザーの証明書ストアへ登録します。</p><div class="meta">対象例：東京リージョン / rds-ca-rsa2048-g1　｜　更新日：2026年11月19日</div></header>
 
-<section class="card"><h2>この作業で行うこと</h2>
-<p class="lead">同梱の単独ルート証明書（<code>.cer</code>）を拇印で確認し、Windowsの<strong>現在のユーザー</strong>の「信頼されたルート証明機関」に登録します。AWSの複数証明書バンドルは直接インポートしません。</p>
-<div class="callout ok"><strong>管理者権限は通常不要です。</strong>登録は作業したWindowsユーザーのみに適用されます。他のユーザーやPC全体には適用されません。</div>
-<div class="callout warn"><strong>重要：</strong>この資料の対象例は <code>ap-northeast-1</code> / <code>rds-ca-rsa2048-g1</code> です。作業前に対象RDSインスタンスのCA識別子を管理者に確認してください。対象CAが異なる場合、この手順の証明書名・拇印をそのまま使わず作業を止めてください。</div>
-</section>
-
-<section class="card"><h2>事前に準備するもの</h2>
-<ul class="checklist"><li>同梱の対象ルート証明書 <a href="assets/rds-ca-rsa2048-g1-root.cer"><code>rds-ca-rsa2048-g1-root.cer</code></a></li><li>対象RDSインスタンスのCA識別子（AWSコンソールのDBインスタンス詳細で確認）</li><li>管理者またはサポート担当から提供された対象ルート証明書の拇印（Thumbprint）</li></ul>
-<p>拇印は本手順書の対象例では <code>D790 BBB6 61BA FA41 0182 9F10 3D63 9BEF A300 F9A4</code> です。空白の有無や大文字・小文字は問いません。配布時は対象CAの設定と必ず照合してください。</p>
-<div class="callout danger">証明書バンドル内の証明書をすべて「信頼されたルート証明機関」へ入れないでください。登録するのは、名前が対象CAと一致する自己署名ルート証明書1件だけです。中間証明機関は登録しません。</div>
-</section>
+<section class="card"><h2>作業の流れ</h2><p class="lead">AWSの <code>global-bundle.p7b</code> を証明書ビューアーで開き、対象ルートを一覧から選択します。選んだ証明書の画面からインストールウィザードを起動し、その証明書1件だけを登録します。</p><div class="callout ok"><strong>登録先：</strong>証明書 - 現在のユーザー → 信頼されたルート証明機関。管理者権限は通常不要です。</div><div class="callout danger"><strong>注意：</strong><code>global-bundle.p7b</code> を証明書管理画面から一括インポートしないでください。この手順では一覧から対象ルート1件を選んでインストールします。中間証明書は登録しません。</div></section>
 
 <section class="card"><h2>操作手順</h2>
-<div class="step"><div class="num">1</div><div><h3>対象DBのCA識別子を確認する</h3><p>AWS管理者に対象DBインスタンスのCA識別子を確認します。ここでは <code>rds-ca-rsa2048-g1</code> が表示される場合の例を説明します。CA識別子が異なる場合は、作業せず管理者に確認してください。</p></div></div>
+<div class="step"><div class="num">2</div><div><h3>global-bundle.p7bを開き、対象ルートを選ぶ</h3><p>エクスプローラーで配布された <code>global-bundle.p7b</code> を右クリックし、「プログラムから開く」→「Crypto Shell Extensions」（暗号化シェル拡張）を選びます。証明書一覧が表示されたら、次の条件をすべて満たす1件を選びます。</p><ul><li>名前：<code>Amazon RDS ap-northeast-1 Root CA RSA2048 G1</code></li><li>発行先（Subject）と発行者（Issuer）が同じ（自己署名ルート）</li><li>詳細の拇印：<code>D790 BBB6 61BA FA41 0182 9F10 3D63 9BEF A300 F9A4</code></li></ul><p>名前や拇印が一致しない場合は、インストールせず管理者に確認してください。証明書の有効期間内であることも確認します。</p><div class="callout">拇印は、選択した証明書を開き「詳細」タブ→「拇印」で確認します。表示値に空白がある場合は取り除いて照合します。</div></div></div>
 
-<div class="step"><div class="num">2</div><div><h3>同梱の単独証明書を確認する</h3><p>この手順では、バンドルではなく、対象CAのルート証明書1件だけを含む <code>rds-ca-rsa2048-g1-root.cer</code> を使います。証明書の拇印は <code>D790 BBB6 61BA FA41 0182 9F10 3D63 9BEF A300 F9A4</code> です。</p><p>拇印の確認は、証明書ファイルをダブルクリックして「詳細」タブの「拇印」を表示します。対象DBのCA識別子が <code>rds-ca-rsa2048-g1</code> と異なる場合、または拇印が一致しない場合は作業を中止して管理者に確認してください。</p><div class="callout">配布元が不明な証明書を使わないでください。単独証明書はAWS公式RDSバンドルに含まれる証明書から対象ルートだけを取り出し、拇印を照合して用意しています。</div></div></div>
+<div class="step"><div class="num">3</div><div><h3>選んだ証明書を開く</h3><p>証明書一覧で、手順2で拇印を確認した1件をダブルクリックします。開いた証明書の画面で、名前、発行者、拇印が選択時の内容と一致することをもう一度確認してください。</p></div></div>
 
-<div class="step"><div class="num">3</div><div><h3>証明書管理を開く</h3><p>スタートメニューで <code>ユーザー証明書の管理</code> を検索して起動します。見つからない場合は <code>Win + R</code> を押して <code>certmgr.msc</code> と入力し、Enterを押します。画面タイトルが「証明書 - 現在のユーザー」であることを確認します。</p></div></div>
+<div class="step"><div class="num">4</div><div><h3>選択した証明書のインストールを開始する</h3><p>証明書の画面で「証明書のインストール」をクリックします。証明書のインポートウィザードが開きます。</p></div></div>
 
-<div class="step"><div class="num">4</div><div><h3>信頼されたルート証明機関を開く</h3><p>左側で <strong>信頼されたルート証明機関 → 証明書</strong> を開きます。画面タイトルに「現在のユーザー」と表示されていることを確認してください。「コンピューター アカウント」や「ローカル コンピューター」のストアは選びません。</p></div></div>
+<div class="step"><div class="num">5</div><div><h3>現在のユーザーの信頼されたルートへ登録する</h3><p>ウィザードで「現在のユーザー」を選択します。証明書ストアの選択画面では「証明書をすべて次のストアに配置する」を選び、「信頼されたルート証明機関」を指定して完了します。</p><div class="callout warn">「ローカル コンピューター」や「コンピューター アカウント」は選びません。ウィザードに「現在のユーザー」が表示されない場合は作業を止め、管理者に確認してください。</div><figure><img class="real-shot" src="https://docs.aws.amazon.com/images/AmazonRDS/latest/UserGuide/images/rds_sql_ssl_cert.png" alt="AWS公式資料に掲載されたWindows MMCの証明書ストア画面"><figcaption class="caption">Windows MMCの実画面例。登録先ストアを確認する参考画像です。AWS掲載例はコンピューターアカウント向けですが、この手順では「現在のユーザー」を使います。<br><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/SQLServer.Concepts.General.SSL.Using.html">画像出典：AWS「Using SSL with a Microsoft SQL Server DB instance」</a></figcaption></figure></div></div>
 
-<div class="step"><div class="num">5</div><div><h3>単独ルート証明書をインポートする</h3><p>「証明書」を右クリックし、<strong>すべてのタスク → インポート</strong> を選びます。手順2で拇印を確認した <code>rds-ca-rsa2048-g1-root.cer</code> を指定します。証明書ストアは<strong>信頼されたルート証明機関</strong>を選択し、保存先が正しいことを確認して完了します。</p><div class="callout warn">この手順では単独のルート証明書だけを登録します。AWSの複数証明書バンドル（.p7b/.pem）はこのウィザードで直接インポートしないでください。</div><figure><img class="real-shot" src="https://docs.aws.amazon.com/images/AmazonRDS/latest/UserGuide/images/rds_sql_ssl_cert.png" alt="AWS公式手順書に掲載されているWindows MMCの証明書ストア画面"><figcaption class="caption">実際のWindows MMC画面（AWS公式資料の掲載画像）。「信頼されたルート証明機関」の証明書一覧を開いた状態です。画面例はAWSのコンピューターアカウント向け説明に掲載されたもので、この手順では登録先を「現在のユーザー」にします。<br><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/SQLServer.Concepts.General.SSL.Using.html">画像の出典：AWS「Using SSL with a Microsoft SQL Server DB instance」</a></figcaption></figure></div></div>
-
-<div class="step"><div class="num">6</div><div><h3>登録結果と拇印を確認する</h3><p>インポート完了後、証明書管理画面で <strong>信頼されたルート証明機関 → 証明書</strong> を開きます。対象のルートCAが表示されることを確認し、開いて詳細タブの「拇印」が事前に確認した値と一致することを確認します。</p><div class="callout ok">対象証明書が1件表示され、拇印が一致すれば登録完了です。Power BI Desktopなど接続アプリをいったん完全に終了し、起動し直してから再接続します。</div></div></div>
+<div class="step"><div class="num">6</div><div><h3>登録結果と拇印を確認する</h3><p><code>Win + R</code> を押し、<code>certmgr.msc</code> と入力してEnterを押します。タイトルが「証明書 - 現在のユーザー」であることを確認し、「信頼されたルート証明機関」→「証明書」に対象ルートが表示されるか確認します。証明書を開いて拇印が手順2の値と一致すれば登録完了です。</p><div class="callout ok">対象証明書が1件表示され、拇印が一致すれば完了です。Power BI Desktopなど接続アプリを完全に終了し、起動し直してから再接続します。</div></div></div>
 </section>
 
-<section class="card"><h2>作業後の確認・困ったとき</h2><ul><li><strong>すでに同じ証明書がある：</strong>拇印が一致すれば追加登録は不要です。</li><li><strong>拇印が一致しない／CA識別子が異なる：</strong>追加・削除を行わず、管理者に対象CAと証明書配布元を確認してください。</li><li><strong>「アクセスが拒否されました」：</strong>現在のユーザー用ストアを開いているか確認します。組織の端末制限がある場合は社内ITへ連絡してください。</li><li><strong>接続エラーが続く：</strong>証明書以外に、接続先名、ネットワーク、SQL認証、Power BIの接続設定などが原因のことがあります。エラー全文を添えて管理者へ連絡してください。</li></ul><div class="callout danger">トラブル解消のために「証明書の失効確認を無効化」「サーバー証明書を検証しない」等の設定を有効にしないでください。登録した証明書の削除や別CAの登録は、管理者の指示に従ってください。</div></section>
-
-<section class="card"><h2>公式情報</h2><ul><li>AWS「<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/SQLServer.Concepts.General.SSL.Using.html">Using SSL with a Microsoft SQL Server DB instance</a>」— Windowsクライアント向けにPKCS#7（.p7b）形式を推奨。</li><li>AWS「<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.SSL.html">Using SSL/TLS to encrypt a connection to a DB instance or cluster</a>」— 証明書バンドルとルートCAに関する説明。</li></ul><p class="footer">参照日：2026年11月19日。手順中の画像はAWS公式資料に掲載された実際のWindows画面です。説明用の模式図は使用していません。画像はオンラインで表示するため、ネットワーク接続が必要です。</p><div class="footline footer">対象構成が変更された場合は、AWSコンソールに表示されるCA識別子と、管理者が指定する証明書の名前・拇印を再確認してから実施してください。</div></section>
-</main>
-</body>
-</html>
+<section class="card"><h2>中止して管理者へ確認する場合</h2><ul><li>対象名または拇印が一致しない</li><li>自己署名ルートであることを確認できない</li><li>有効期間が切れている、またはPCの日付が正しいか判断できない</li><li>証明書の選択やインストール画面がこの説明と異なる</li></ul><div class="callout danger">「サーバー証明書を検証しない」など、証明書検証を無効にする設定は行わないでください。</div><p class="footer">対象例：<code>rds-ca-rsa2048-g1</code> / 拇印 <code>D790BBB661BAFA4101829F103D639BEFA300F9A4</code>。配布時はスクリプトの設定と一致するか確認してください。</p><div class="footline footer">参考：AWS「<a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/SQLServer.Concepts.General.SSL.Using.html">Using SSL with a Microsoft SQL Server DB instance</a>」、Microsoft「<a href="https://learn.microsoft.com/en-us/windows-server/identity/ad-cs/inspect-certificates-manage-certificate-stores">Manage Certificate Stores in Windows Server</a>」。参照日：2026年11月19日。</div></section>
+</main></body></html>
